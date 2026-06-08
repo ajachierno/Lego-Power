@@ -1,0 +1,83 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Add a LEGO hub",
+        "description": "Select the LEGO Powered Up hub to control. Make sure it is powered on and not connected to anything else.",
+        "data": {
+          "address": "Bluetooth device"
+        }
+      },
+      "settings": {
+        "title": "Motor settings",
+        "description": "Configure how the motor on {name} is driven.",
+        "data": {
+          "name": "Name",
+          "port": "Motor port (A=0, B=1, C=2, D=3)",
+          "power": "Run power",
+          "direction": "Direction",
+          "stop_action": "Stop behaviour"
+        },
+        "data_description": {
+          "port": "The hub port the motor is plugged into. External ports are A=0, B=1, C=2 and D=3.",
+          "power": "Motor power used when the run switch is turned on.",
+          "direction": "Which way the motor turns when running.",
+          "stop_action": "Whether the motor coasts (float) or actively holds (brake) when stopped."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This LEGO hub is already configured",
+      "no_devices_found": "No unconfigured LEGO hubs found in Bluetooth range"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Motor settings",
+        "data": {
+          "port": "Motor port (A=0, B=1, C=2, D=3)",
+          "power": "Run power",
+          "direction": "Direction",
+          "stop_action": "Stop behaviour"
+        },
+        "data_description": {
+          "port": "The hub port the motor is plugged into. External ports are A=0, B=1, C=2 and D=3.",
+          "power": "Motor power used when the run switch is turned on.",
+          "direction": "Which way the motor turns when running.",
+          "stop_action": "Whether the motor coasts (float) or actively holds (brake) when stopped."
+        }
+      }
+    }
+  },
+  "selector": {
+    "direction": {
+      "options": {
+        "forward": "Forward",
+        "reverse": "Reverse"
+      }
+    },
+    "stop_action": {
+      "options": {
+        "float": "Float (coast)",
+        "brake": "Brake (hold)"
+      }
+    }
+  },
+  "entity": {
+    "switch": {
+      "motor": {
+        "name": "Motor"
+      },
+      "connection": {
+        "name": "Connection"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Connected"
+      }
+    }
+  }
+}
