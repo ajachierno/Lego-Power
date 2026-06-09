@@ -14,7 +14,7 @@ LEGO_MANUFACTURER_ID = 919
 
 # Configuration / option keys.
 CONF_PORT = "port"
-CONF_POWER = "power"
+CONF_SPEED = "speed"
 CONF_DIRECTION = "direction"
 CONF_STOP_ACTION = "stop_action"
 
@@ -27,13 +27,20 @@ STOP_FLOAT = "float"
 STOP_BRAKE = "brake"
 
 # Defaults.
+#
+# These mirror the original LEGO Piano (21323) ESPHome firmware this
+# integration was built from, whose "play" command was:
+#   {0x08, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0xCE}
+# 0xCE is -50 as a signed byte -> port A (0x00), 50 % power, reverse
+# direction, with "stop" sending 0x00 (float). Running the piano motor at
+# full speed makes the gears skip, so the default speed is deliberately 50 %.
 DEFAULT_PORT = 0
-DEFAULT_POWER = 100
-DEFAULT_DIRECTION = DIRECTION_FORWARD
+DEFAULT_SPEED = 50
+DEFAULT_DIRECTION = DIRECTION_REVERSE
 DEFAULT_STOP_ACTION = STOP_FLOAT
 
 # Bounds.
 MIN_PORT = 0
 MAX_PORT = 63
-MIN_POWER = 1
-MAX_POWER = 100
+MIN_SPEED = 1
+MAX_SPEED = 100

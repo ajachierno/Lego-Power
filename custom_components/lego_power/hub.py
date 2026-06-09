@@ -16,7 +16,7 @@ from homeassistant.components import bluetooth
 from homeassistant.core import HomeAssistant
 
 from . import lego
-from .const import LEGO_HUB_CHARACTERISTIC_UUID
+from .const import LEGO_HUB_CHARACTERISTIC_UUID, MAX_SPEED, MIN_SPEED
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +37,8 @@ class LegoPowerHub:
         address: str,
         name: str,
         port: int,
-        power: int,
+        speed: int,
+        reverse: bool,
         brake_on_stop: bool,
     ) -> None:
         """Initialise the hub controller."""
@@ -45,15 +46,30 @@ class LegoPowerHub:
         self.address = address
         self.name = name
         self.port = port
-        # ``power`` is already signed (negative means reverse direction).
-        self.power = power
+        self.reverse = reverse
         self.brake_on_stop = brake_on_stop
+        self._speed = self._clamp_speed(speed)
 
         self._client: BleakClientWithServiceCache | None = None
         self._lock = asyncio.Lock()
         self._running = False
         self._should_stay_connected = False
         self._callbacks: set[Callable[[], None]] = set()
+
+    @staticmethod
+    def _clamp_speed(value: int) -> int:
+        """Clamp a speed percentage to the supported range."""
+        return max(MIN_SPEED, min(MAX_SPEED, int(value)))
+
+    @property
+    def speed(self) -> int:
+        """Return the configured run speed as a percentage (1-100)."""
+        return self._speed
+
+    @property
+    def signed_power(self) -> int:
+        """Return the motor power (-100..100) including direction."""
+        return -self._speed if self.reverse else self._speed
 
     @property
     def connected(self) -> bool:
@@ -83,6 +99,17 @@ class LegoPowerHub:
         """Notify all registered listeners that state changed."""
         for callback in list(self._callbacks):
             callback()
+
+    def set_speed_value(self, speed: int) -> None:
+        """Set the run speed without sending anything to the hub."""
+        self._speed = self._clamp_speed(speed)
+
+    async def async_set_speed(self, speed: int) -> None:
+        """Set the run speed, applying it live if the motor is running."""
+        self._speed = self._clamp_speed(speed)
+        if self.is_running:
+            await self._write(lego.set_motor_power(self.port, self.signed_power))
+        self._notify()
 
     async def async_connect(self) -> None:
         """Establish the BLE connection to the hub."""
@@ -163,7 +190,7 @@ class LegoPowerHub:
         if running:
             if not self.connected:
                 await self.async_connect()
-            await self._write(lego.set_motor_power(self.port, self.power))
+            await self._write(lego.set_motor_power(self.port, self.signed_power))
             self._running = True
         else:
             if self.connected:

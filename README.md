@@ -15,10 +15,16 @@ supports **multiple hubs**, each added as its own device.
 > LEGO® is a trademark of the LEGO Group, which does not sponsor, authorise or
 > endorse this project.
 
+> [!WARNING]
+> **Tested only on the LEGO® Piano (21323).** Other Powered Up hubs and motors
+> should work, but are unverified. **Do not run the piano motor at full speed —
+> the gears will skip.** The default speed is a safe **50 %**; raise it carefully.
+
 ## Features
 
 - 🎛️ **Motor switch** — turn on to run the motor, off to stop it.
 - 🔌 **Connection switch** — connect or disconnect the hub from Home Assistant.
+- 🏎️ **Speed control** — a live slider (1–100%); defaults to a gear-safe 50%.
 - 📶 **Connected** binary sensor — shows the live Bluetooth connection status.
 - ➕ **Multiple devices** — add as many hubs as you like, one config entry each.
 - 🔁 **Auto‑reconnect** — re‑establishes the link when the hub comes back in range.
@@ -69,11 +75,14 @@ LEGO Power**, pick the hub, then set:
 | --- | --- |
 | **Name** | Friendly name for the device (e.g. `Piano`). |
 | **Motor port** | Hub port the motor is plugged into. External ports are **A=0, B=1, C=2, D=3**. |
-| **Run power** | Power (1–100 %) applied when the motor switch is turned on. |
+| **Default speed** | Starting speed (1–100 %). Defaults to **50 %**. Change it live afterwards with the **Speed** entity. |
 | **Direction** | Forward or reverse. |
 | **Stop behaviour** | *Float* (coast) or *Brake* (actively hold). |
 
-These can be changed later via the device's **Configure** button.
+These can be changed later via the device's **Configure** button. The **Speed** number entity changes the motor speed live and remembers its value across restarts.
+
+> [!CAUTION]
+> Full speed (100 %) will skip the LEGO Piano (21323) gears. Keep the Speed at or near the default 50 % for that set.
 
 > **Note:** A LEGO hub only allows one Bluetooth connection at a time. If you
 > were previously controlling the hub from custom ESPHome firmware, disable that

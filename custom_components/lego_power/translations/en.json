@@ -11,17 +11,17 @@
       },
       "settings": {
         "title": "Motor settings",
-        "description": "Configure how the motor on {name} is driven.",
+        "description": "Configure how the motor on {name} is driven. Tip: running the motor at full speed can make the LEGO Piano (21323) gears skip, so the default speed is 50%.",
         "data": {
           "name": "Name",
           "port": "Motor port (A=0, B=1, C=2, D=3)",
-          "power": "Run power",
+          "speed": "Default speed",
           "direction": "Direction",
           "stop_action": "Stop behaviour"
         },
         "data_description": {
           "port": "The hub port the motor is plugged into. External ports are A=0, B=1, C=2 and D=3.",
-          "power": "Motor power used when the run switch is turned on.",
+          "speed": "Starting speed (1-100%). You can change it live afterwards with the Speed control. Full speed may skip the piano gears.",
           "direction": "Which way the motor turns when running.",
           "stop_action": "Whether the motor coasts (float) or actively holds (brake) when stopped."
         }
@@ -38,13 +38,13 @@
         "title": "Motor settings",
         "data": {
           "port": "Motor port (A=0, B=1, C=2, D=3)",
-          "power": "Run power",
+          "speed": "Default speed",
           "direction": "Direction",
           "stop_action": "Stop behaviour"
         },
         "data_description": {
           "port": "The hub port the motor is plugged into. External ports are A=0, B=1, C=2 and D=3.",
-          "power": "Motor power used when the run switch is turned on.",
+          "speed": "Starting speed (1-100%). The live Speed control overrides this. Full speed may skip the piano gears.",
           "direction": "Which way the motor turns when running.",
           "stop_action": "Whether the motor coasts (float) or actively holds (brake) when stopped."
         }
@@ -72,6 +72,11 @@
       },
       "connection": {
         "name": "Connection"
+      }
+    },
+    "number": {
+      "speed": {
+        "name": "Speed"
       }
     },
     "binary_sensor": {

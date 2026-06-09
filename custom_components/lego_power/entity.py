@@ -28,4 +28,5 @@ class LegoPowerEntity(Entity):
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to hub state changes."""
+        await super().async_added_to_hass()
         self.async_on_remove(self._hub.register_callback(self.async_write_ha_state))

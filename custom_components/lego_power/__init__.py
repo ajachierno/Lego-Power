@@ -17,12 +17,12 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import (
     CONF_DIRECTION,
-    CONF_POWER,
     CONF_PORT,
+    CONF_SPEED,
     CONF_STOP_ACTION,
     DEFAULT_DIRECTION,
-    DEFAULT_POWER,
     DEFAULT_PORT,
+    DEFAULT_SPEED,
     DEFAULT_STOP_ACTION,
     DIRECTION_REVERSE,
     STOP_BRAKE,
@@ -31,7 +31,11 @@ from .hub import LegoPowerConnectionError, LegoPowerHub
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SWITCH]
+PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.NUMBER,
+    Platform.SWITCH,
+]
 
 type LegoPowerConfigEntry = ConfigEntry[LegoPowerHub]
 
@@ -43,9 +47,7 @@ async def async_setup_entry(
     address: str = entry.data[CONF_ADDRESS]
     options = {**entry.data, **entry.options}
 
-    power = int(options.get(CONF_POWER, DEFAULT_POWER))
     direction = options.get(CONF_DIRECTION, DEFAULT_DIRECTION)
-    signed_power = -abs(power) if direction == DIRECTION_REVERSE else abs(power)
     brake_on_stop = options.get(CONF_STOP_ACTION, DEFAULT_STOP_ACTION) == STOP_BRAKE
 
     hub = LegoPowerHub(
@@ -53,7 +55,8 @@ async def async_setup_entry(
         address=address,
         name=entry.title,
         port=int(options.get(CONF_PORT, DEFAULT_PORT)),
-        power=signed_power,
+        speed=int(options.get(CONF_SPEED, DEFAULT_SPEED)),
+        reverse=direction == DIRECTION_REVERSE,
         brake_on_stop=brake_on_stop,
     )
 

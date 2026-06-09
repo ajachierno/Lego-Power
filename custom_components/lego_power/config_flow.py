@@ -21,12 +21,12 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_DIRECTION,
-    CONF_POWER,
     CONF_PORT,
+    CONF_SPEED,
     CONF_STOP_ACTION,
     DEFAULT_DIRECTION,
-    DEFAULT_POWER,
     DEFAULT_PORT,
+    DEFAULT_SPEED,
     DEFAULT_STOP_ACTION,
     DIRECTION_FORWARD,
     DIRECTION_REVERSE,
@@ -34,9 +34,9 @@ from .const import (
     LEGO_HUB_SERVICE_UUID,
     LEGO_MANUFACTURER_ID,
     MAX_PORT,
-    MAX_POWER,
+    MAX_SPEED,
     MIN_PORT,
-    MIN_POWER,
+    MIN_SPEED,
     STOP_BRAKE,
     STOP_FLOAT,
 )
@@ -60,10 +60,10 @@ _PORT_SELECTOR = selector.NumberSelector(
         min=MIN_PORT, max=MAX_PORT, step=1, mode=selector.NumberSelectorMode.BOX
     )
 )
-_POWER_SELECTOR = selector.NumberSelector(
+_SPEED_SELECTOR = selector.NumberSelector(
     selector.NumberSelectorConfig(
-        min=MIN_POWER,
-        max=MAX_POWER,
+        min=MIN_SPEED,
+        max=MAX_SPEED,
         step=1,
         mode=selector.NumberSelectorMode.SLIDER,
         unit_of_measurement="%",
@@ -83,7 +83,7 @@ def _settings_schema(defaults: dict[str, Any]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_PORT, default=defaults[CONF_PORT]): _PORT_SELECTOR,
-            vol.Required(CONF_POWER, default=defaults[CONF_POWER]): _POWER_SELECTOR,
+            vol.Required(CONF_SPEED, default=defaults[CONF_SPEED]): _SPEED_SELECTOR,
             vol.Required(
                 CONF_DIRECTION, default=defaults[CONF_DIRECTION]
             ): _DIRECTION_SELECTOR,
@@ -156,7 +156,7 @@ class LegoPowerConfigFlow(ConfigFlow, domain=DOMAIN):
                 data={CONF_ADDRESS: address},
                 options={
                     CONF_PORT: int(user_input[CONF_PORT]),
-                    CONF_POWER: int(user_input[CONF_POWER]),
+                    CONF_SPEED: int(user_input[CONF_SPEED]),
                     CONF_DIRECTION: user_input[CONF_DIRECTION],
                     CONF_STOP_ACTION: user_input[CONF_STOP_ACTION],
                 },
@@ -172,7 +172,7 @@ class LegoPowerConfigFlow(ConfigFlow, domain=DOMAIN):
             _settings_schema(
                 {
                     CONF_PORT: DEFAULT_PORT,
-                    CONF_POWER: DEFAULT_POWER,
+                    CONF_SPEED: DEFAULT_SPEED,
                     CONF_DIRECTION: DEFAULT_DIRECTION,
                     CONF_STOP_ACTION: DEFAULT_STOP_ACTION,
                 }
@@ -205,7 +205,7 @@ class LegoPowerOptionsFlow(OptionsFlow):
         current = {**self.config_entry.data, **self.config_entry.options}
         defaults = {
             CONF_PORT: current.get(CONF_PORT, DEFAULT_PORT),
-            CONF_POWER: current.get(CONF_POWER, DEFAULT_POWER),
+            CONF_SPEED: current.get(CONF_SPEED, DEFAULT_SPEED),
             CONF_DIRECTION: current.get(CONF_DIRECTION, DEFAULT_DIRECTION),
             CONF_STOP_ACTION: current.get(CONF_STOP_ACTION, DEFAULT_STOP_ACTION),
         }
