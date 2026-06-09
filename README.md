@@ -28,7 +28,7 @@ supports **multiple hubs**, each added as its own device.
 - 📶 **Connected** binary sensor — shows the live Bluetooth connection status.
 - ➕ **Multiple devices** — add as many hubs as you like, one config entry each.
 - 🔁 **Auto‑reconnect** — re‑establishes the link when the hub comes back in range.
-- ⚙️ **Per‑device options** — motor port, run power, direction and stop behaviour.
+- ⚙️ **Per‑device options** — motor port, speed, direction and stop behaviour.
 
 ## How it works
 
