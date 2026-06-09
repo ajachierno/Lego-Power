@@ -120,3 +120,7 @@ Remaining steps before requesting inclusion in the default HACS store:
 ## License
 
 [MIT](LICENSE)
+
+## Buy me a coffee
+
+Did you find this helpful? Consider buying me a coffee to support additional development: [buymeacoffee](https://buymeacoffee.com/ajachiernoo)
