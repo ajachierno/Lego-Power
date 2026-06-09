@@ -8,6 +8,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from . import LegoPowerConfigEntry
 from .entity import LegoPowerEntity
@@ -21,7 +22,12 @@ async def async_setup_entry(
     """Set up the LEGO Power switches."""
     hub = entry.runtime_data
     async_add_entities(
-        [LegoPowerMotorSwitch(hub), LegoPowerConnectionSwitch(hub)]
+        [
+            LegoPowerMotorSwitch(hub),
+            LegoPowerConnectionSwitch(hub),
+            LegoPowerReverseSwitch(hub),
+            LegoPowerBrakeSwitch(hub),
+        ]
     )
 
 
@@ -74,3 +80,69 @@ class LegoPowerConnectionSwitch(LegoPowerEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Disconnect from the hub."""
         await self._hub.async_disconnect()
+
+
+class LegoPowerReverseSwitch(LegoPowerEntity, SwitchEntity, RestoreEntity):
+    """Toggle the motor direction (on = reverse, off = forward)."""
+
+    _attr_translation_key = "reverse"
+    _attr_icon = "mdi:swap-horizontal"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, hub) -> None:
+        """Initialise the reverse toggle."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub.address}_reverse"
+
+    @property
+    def is_on(self) -> bool:
+        """Return True when the direction is reversed."""
+        return self._hub.reverse
+
+    async def async_added_to_hass(self) -> None:
+        """Restore the last direction set by the user, if any."""
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last is not None and last.state in ("on", "off"):
+            self._hub.set_reverse_value(last.state == "on")
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Run the motor in reverse."""
+        await self._hub.async_set_reverse(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Run the motor forward."""
+        await self._hub.async_set_reverse(False)
+
+
+class LegoPowerBrakeSwitch(LegoPowerEntity, SwitchEntity, RestoreEntity):
+    """Toggle the stop behaviour (on = brake/hold, off = float/coast)."""
+
+    _attr_translation_key = "brake"
+    _attr_icon = "mdi:car-brake-hold"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, hub) -> None:
+        """Initialise the brake toggle."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub.address}_brake"
+
+    @property
+    def is_on(self) -> bool:
+        """Return True when the motor brakes on stop."""
+        return self._hub.brake_on_stop
+
+    async def async_added_to_hass(self) -> None:
+        """Restore the last stop behaviour set by the user, if any."""
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last is not None and last.state in ("on", "off"):
+            self._hub.set_brake_on_stop_value(last.state == "on")
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Brake (actively hold) when the motor stops."""
+        await self._hub.async_set_brake_on_stop(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Float (coast) when the motor stops."""
+        await self._hub.async_set_brake_on_stop(False)

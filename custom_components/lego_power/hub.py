@@ -111,6 +111,44 @@ class LegoPowerHub:
             await self._write(lego.set_motor_power(self.port, self.signed_power))
         self._notify()
 
+    def set_reverse_value(self, reverse: bool) -> None:
+        """Set the direction without sending anything to the hub."""
+        self.reverse = bool(reverse)
+
+    async def async_set_reverse(self, reverse: bool) -> None:
+        """Set the direction, re-applying live if the motor is running."""
+        self.reverse = bool(reverse)
+        if self.is_running:
+            await self._write(lego.set_motor_power(self.port, self.signed_power))
+        self._notify()
+
+    def set_brake_on_stop_value(self, brake: bool) -> None:
+        """Set the stop behaviour without sending anything to the hub."""
+        self.brake_on_stop = bool(brake)
+
+    async def async_set_brake_on_stop(self, brake: bool) -> None:
+        """Set the stop behaviour (applies on the next stop)."""
+        self.brake_on_stop = bool(brake)
+        self._notify()
+
+    def set_port_value(self, port: int) -> None:
+        """Set the motor port without sending anything to the hub."""
+        self.port = int(port)
+
+    async def async_set_port(self, port: int) -> None:
+        """Change the motor port, safely handling a running motor."""
+        new_port = int(port)
+        if new_port == self.port:
+            return
+        was_running = self.is_running
+        if was_running:
+            # Stop the old port first so it does not keep spinning.
+            await self._write(lego.stop_motor(self.port, brake=self.brake_on_stop))
+        self.port = new_port
+        if was_running:
+            await self._write(lego.set_motor_power(self.port, self.signed_power))
+        self._notify()
+
     async def async_connect(self) -> None:
         """Establish the BLE connection to the hub."""
         async with self._lock:

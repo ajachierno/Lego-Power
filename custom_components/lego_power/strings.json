@@ -9,60 +9,17 @@
           "address": "Bluetooth device"
         }
       },
-      "settings": {
-        "title": "Motor settings",
-        "description": "Configure how the motor on {name} is driven. Tip: running the motor at full speed can make the LEGO Piano (21323) gears skip, so the default speed is 50%.",
+      "name": {
+        "title": "Name your LEGO hub",
+        "description": "Give {name} a name. Motor port, speed, direction and stop behaviour are adjustable afterwards as controls on the device page.",
         "data": {
-          "name": "Name",
-          "port": "Motor port (A=0, B=1, C=2, D=3)",
-          "speed": "Default speed",
-          "direction": "Direction",
-          "stop_action": "Stop behaviour"
-        },
-        "data_description": {
-          "port": "The hub port the motor is plugged into. External ports are A=0, B=1, C=2 and D=3.",
-          "speed": "Starting speed (1-100%). You can change it live afterwards with the Speed control. Full speed may skip the piano gears.",
-          "direction": "Which way the motor turns when running.",
-          "stop_action": "Whether the motor coasts (float) or actively holds (brake) when stopped."
+          "name": "Name"
         }
       }
     },
     "abort": {
       "already_configured": "This LEGO hub is already configured",
       "no_devices_found": "No unconfigured LEGO hubs found in Bluetooth range"
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Motor settings",
-        "data": {
-          "port": "Motor port (A=0, B=1, C=2, D=3)",
-          "speed": "Default speed",
-          "direction": "Direction",
-          "stop_action": "Stop behaviour"
-        },
-        "data_description": {
-          "port": "The hub port the motor is plugged into. External ports are A=0, B=1, C=2 and D=3.",
-          "speed": "Starting speed (1-100%). The live Speed control overrides this. Full speed may skip the piano gears.",
-          "direction": "Which way the motor turns when running.",
-          "stop_action": "Whether the motor coasts (float) or actively holds (brake) when stopped."
-        }
-      }
-    }
-  },
-  "selector": {
-    "direction": {
-      "options": {
-        "forward": "Forward",
-        "reverse": "Reverse"
-      }
-    },
-    "stop_action": {
-      "options": {
-        "float": "Float (coast)",
-        "brake": "Brake (hold)"
-      }
     }
   },
   "entity": {
@@ -72,11 +29,20 @@
       },
       "connection": {
         "name": "Connection"
+      },
+      "reverse": {
+        "name": "Reverse"
+      },
+      "brake": {
+        "name": "Brake on stop"
       }
     },
     "number": {
       "speed": {
         "name": "Speed"
+      },
+      "port": {
+        "name": "Motor port"
       }
     },
     "binary_sensor": {

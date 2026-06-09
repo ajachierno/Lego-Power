@@ -28,7 +28,9 @@ supports **multiple hubs**, each added as its own device.
 - 📶 **Connected** binary sensor — shows the live Bluetooth connection status.
 - ➕ **Multiple devices** — add as many hubs as you like, one config entry each.
 - 🔁 **Auto‑reconnect** — re‑establishes the link when the hub comes back in range.
-- ⚙️ **Per‑device options** — motor port, speed, direction and stop behaviour.
+- 🎚️ **Live device controls** — motor port, direction (Reverse toggle) and
+  stop behaviour (Brake toggle) are adjustable right on the device page, no
+  reconfigure dialog needed.
 
 ## How it works
 
@@ -74,12 +76,18 @@ LEGO Power**, pick the hub, then set:
 | Option | Description |
 | --- | --- |
 | **Name** | Friendly name for the device (e.g. `Piano`). |
-| **Motor port** | Hub port the motor is plugged into. External ports are **A=0, B=1, C=2, D=3**. |
-| **Default speed** | Starting speed (1–100 %). Defaults to **50 %**. Change it live afterwards with the **Speed** entity. |
-| **Direction** | Forward or reverse. |
-| **Stop behaviour** | *Float* (coast) or *Brake* (actively hold). |
 
-These can be changed later via the device's **Configure** button. The **Speed** number entity changes the motor speed live and remembers its value across restarts.
+That's the only setup question. Everything else is a **live control on the device page** (and remembers its value across restarts):
+
+| Entity | What it does |
+| --- | --- |
+| **Motor** (switch) | Run / stop the motor. |
+| **Speed** (number) | Run speed, 1–100 %. Defaults to a gear‑safe **50 %**. |
+| **Reverse** (switch) | Off = forward, on = reverse direction. |
+| **Brake on stop** (switch) | Off = float/coast, on = brake/hold when stopped. |
+| **Motor port** (number) | Hub port the motor is on (**A=0, B=1, C=2, D=3**). |
+| **Connection** (switch) | Connect / disconnect the hub. |
+| **Connected** (binary sensor) | Live Bluetooth connection status. |
 
 > [!CAUTION]
 > Full speed (100 %) will skip the LEGO Piano (21323) gears. Keep the Speed at or near the default 50 % for that set.

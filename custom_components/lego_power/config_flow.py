@@ -10,64 +10,13 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
-from homeassistant.config_entries import (
-    ConfigFlow,
-    ConfigFlowResult,
-    OptionsFlow,
-)
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
-from homeassistant.core import callback
-from homeassistant.helpers import selector
 
 from .const import (
-    CONF_DIRECTION,
-    CONF_PORT,
-    CONF_SPEED,
-    CONF_STOP_ACTION,
-    DEFAULT_DIRECTION,
-    DEFAULT_PORT,
-    DEFAULT_SPEED,
-    DEFAULT_STOP_ACTION,
-    DIRECTION_FORWARD,
-    DIRECTION_REVERSE,
     DOMAIN,
     LEGO_HUB_SERVICE_UUID,
     LEGO_MANUFACTURER_ID,
-    MAX_PORT,
-    MAX_SPEED,
-    MIN_PORT,
-    MIN_SPEED,
-    STOP_BRAKE,
-    STOP_FLOAT,
-)
-
-_DIRECTION_SELECTOR = selector.SelectSelector(
-    selector.SelectSelectorConfig(
-        options=[DIRECTION_FORWARD, DIRECTION_REVERSE],
-        translation_key="direction",
-        mode=selector.SelectSelectorMode.DROPDOWN,
-    )
-)
-_STOP_SELECTOR = selector.SelectSelector(
-    selector.SelectSelectorConfig(
-        options=[STOP_FLOAT, STOP_BRAKE],
-        translation_key="stop_action",
-        mode=selector.SelectSelectorMode.DROPDOWN,
-    )
-)
-_PORT_SELECTOR = selector.NumberSelector(
-    selector.NumberSelectorConfig(
-        min=MIN_PORT, max=MAX_PORT, step=1, mode=selector.NumberSelectorMode.BOX
-    )
-)
-_SPEED_SELECTOR = selector.NumberSelector(
-    selector.NumberSelectorConfig(
-        min=MIN_SPEED,
-        max=MAX_SPEED,
-        step=1,
-        mode=selector.NumberSelectorMode.SLIDER,
-        unit_of_measurement="%",
-    )
 )
 
 
@@ -78,24 +27,13 @@ def _is_lego_hub(info: BluetoothServiceInfoBleak) -> bool:
     return LEGO_MANUFACTURER_ID in info.manufacturer_data
 
 
-def _settings_schema(defaults: dict[str, Any]) -> vol.Schema:
-    """Build the per-device settings schema."""
-    return vol.Schema(
-        {
-            vol.Required(CONF_PORT, default=defaults[CONF_PORT]): _PORT_SELECTOR,
-            vol.Required(CONF_SPEED, default=defaults[CONF_SPEED]): _SPEED_SELECTOR,
-            vol.Required(
-                CONF_DIRECTION, default=defaults[CONF_DIRECTION]
-            ): _DIRECTION_SELECTOR,
-            vol.Required(
-                CONF_STOP_ACTION, default=defaults[CONF_STOP_ACTION]
-            ): _STOP_SELECTOR,
-        }
-    )
-
-
 class LegoPowerConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle the LEGO Power config flow."""
+    """Handle the LEGO Power config flow.
+
+    Motor settings (port, speed, direction, stop behaviour) are exposed as
+    live entities on the device page, so the flow only needs to identify the
+    hub and give it a name.
+    """
 
     VERSION = 1
 
@@ -114,7 +52,7 @@ class LegoPowerConfigFlow(ConfigFlow, domain=DOMAIN):
         self.context["title_placeholders"] = {
             "name": discovery_info.name or discovery_info.address
         }
-        return await self.async_step_settings()
+        return await self.async_step_name()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -125,7 +63,7 @@ class LegoPowerConfigFlow(ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(address, raise_on_progress=False)
             self._abort_if_unique_id_configured()
             self._discovery_info = self._discovered.get(address)
-            return await self.async_step_settings()
+            return await self.async_step_name()
 
         current_addresses = self._async_current_ids()
         devices: dict[str, str] = {}
@@ -143,72 +81,26 @@ class LegoPowerConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({vol.Required(CONF_ADDRESS): vol.In(devices)}),
         )
 
-    async def async_step_settings(
+    async def async_step_name(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Collect the per-device name and motor settings."""
+        """Name the device and create the entry."""
         if user_input is not None:
             address = self.unique_id
             assert address is not None
-            name = user_input[CONF_NAME]
             return self.async_create_entry(
-                title=name,
+                title=user_input[CONF_NAME],
                 data={CONF_ADDRESS: address},
-                options={
-                    CONF_PORT: int(user_input[CONF_PORT]),
-                    CONF_SPEED: int(user_input[CONF_SPEED]),
-                    CONF_DIRECTION: user_input[CONF_DIRECTION],
-                    CONF_STOP_ACTION: user_input[CONF_STOP_ACTION],
-                },
             )
 
         default_name = "LEGO Power"
         if self._discovery_info and self._discovery_info.name:
             default_name = self._discovery_info.name
 
-        schema = vol.Schema(
-            {vol.Required(CONF_NAME, default=default_name): str}
-        ).extend(
-            _settings_schema(
-                {
-                    CONF_PORT: DEFAULT_PORT,
-                    CONF_SPEED: DEFAULT_SPEED,
-                    CONF_DIRECTION: DEFAULT_DIRECTION,
-                    CONF_STOP_ACTION: DEFAULT_STOP_ACTION,
-                }
-            ).schema
-        )
-
         return self.async_show_form(
-            step_id="settings",
-            data_schema=schema,
+            step_id="name",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_NAME, default=default_name): str}
+            ),
             description_placeholders={"name": default_name},
-        )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry) -> OptionsFlow:
-        """Return the options flow."""
-        return LegoPowerOptionsFlow()
-
-
-class LegoPowerOptionsFlow(OptionsFlow):
-    """Handle changing motor settings after setup."""
-
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Manage the options."""
-        if user_input is not None:
-            return self.async_create_entry(data=user_input)
-
-        current = {**self.config_entry.data, **self.config_entry.options}
-        defaults = {
-            CONF_PORT: current.get(CONF_PORT, DEFAULT_PORT),
-            CONF_SPEED: current.get(CONF_SPEED, DEFAULT_SPEED),
-            CONF_DIRECTION: current.get(CONF_DIRECTION, DEFAULT_DIRECTION),
-            CONF_STOP_ACTION: current.get(CONF_STOP_ACTION, DEFAULT_STOP_ACTION),
-        }
-        return self.async_show_form(
-            step_id="init", data_schema=_settings_schema(defaults)
         )

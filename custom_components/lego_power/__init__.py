@@ -16,10 +16,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import (
-    CONF_DIRECTION,
-    CONF_PORT,
-    CONF_SPEED,
-    CONF_STOP_ACTION,
     DEFAULT_DIRECTION,
     DEFAULT_PORT,
     DEFAULT_SPEED,
@@ -45,19 +41,18 @@ async def async_setup_entry(
 ) -> bool:
     """Set up LEGO Power from a config entry."""
     address: str = entry.data[CONF_ADDRESS]
-    options = {**entry.data, **entry.options}
 
-    direction = options.get(CONF_DIRECTION, DEFAULT_DIRECTION)
-    brake_on_stop = options.get(CONF_STOP_ACTION, DEFAULT_STOP_ACTION) == STOP_BRAKE
-
+    # Motor port, speed, direction and stop behaviour are now controlled by
+    # live entities on the device page (which restore their own state), so the
+    # hub only needs sensible starting defaults here.
     hub = LegoPowerHub(
         hass,
         address=address,
         name=entry.title,
-        port=int(options.get(CONF_PORT, DEFAULT_PORT)),
-        speed=int(options.get(CONF_SPEED, DEFAULT_SPEED)),
-        reverse=direction == DIRECTION_REVERSE,
-        brake_on_stop=brake_on_stop,
+        port=DEFAULT_PORT,
+        speed=DEFAULT_SPEED,
+        reverse=DEFAULT_DIRECTION == DIRECTION_REVERSE,
+        brake_on_stop=DEFAULT_STOP_ACTION == STOP_BRAKE,
     )
 
     if not bluetooth.async_address_present(hass, address, connectable=True):
@@ -91,7 +86,6 @@ async def async_setup_entry(
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
 
 
@@ -103,10 +97,3 @@ async def async_unload_entry(
     if unload_ok:
         await entry.runtime_data.async_disconnect()
     return unload_ok
-
-
-async def _async_update_listener(
-    hass: HomeAssistant, entry: LegoPowerConfigEntry
-) -> None:
-    """Reload the entry when its options change."""
-    await hass.config_entries.async_reload(entry.entry_id)
