@@ -113,26 +113,39 @@ replace those actions with the motor switch, e.g.:
     entity_id: switch.piano_motor
 ```
 
-## Submitting to HACS (for the maintainer)
+## Submitting to HACS
 
-This repo is already structured for the
+The repo is structured for the
 [HACS integration requirements](https://www.hacs.xyz/docs/publish/integration/):
+`custom_components/lego_power/` with a `manifest.json` (incl. `version`,
+`documentation`, `issue_tracker`, `codeowners`) and a config flow, a root
+`hacs.json`, a README, and a `Validate` workflow running **hassfest** + the
+**HACS action**.
 
-- `custom_components/lego_power/` with `manifest.json` (incl. `version`) and a
-  config flow.
-- `hacs.json` in the repo root.
-- A `validate.yml` workflow running **hassfest** and the **HACS action**.
+To get listed in the **default HACS store**, in order:
 
-Remaining steps before requesting inclusion in the default HACS store:
+1. **Repo settings** (GitHub → repo home): add a **Description**, add **Topics**
+   (e.g. `home-assistant`, `hacs`, `homeassistant-integration`, `lego`,
+   `bluetooth`, `esphome`), and make sure **Issues** are enabled and the repo is
+   **public** and not archived.
+2. **Publish a Release**: GitHub → Releases → *Draft a new release* → choose the
+   existing tag **`v1.2.0`** → publish. HACS installs from the latest release.
+3. **Brand assets** — open a PR to
+   [home-assistant/brands](https://github.com/home-assistant/brands) adding the
+   integration's `lego_power` domain. Copy the images from this repo's `brands/`
+   folder to:
+   `custom_integrations/lego_power/icon.png` (256×256),
+   `custom_integrations/lego_power/icon@2x.png` (512×512),
+   `custom_integrations/lego_power/logo.png`,
+   `custom_integrations/lego_power/logo@2x.png`.
+   This must be merged **before** the HACS default PR will pass.
+4. **Check CI**: confirm the **Validate** workflow (Actions tab) is green. The
+   HACS `brands` check only passes once step 3 is merged.
+5. **Default-store PR**: fork [hacs/default](https://github.com/hacs/default),
+   add `ajachierno/Lego-Power` to the `integration` list (alphabetical), and open
+   a PR. A maintainer/bot reviews it.
 
-1. **Publish a GitHub release** (e.g. `v1.0.0`) — HACS installs the latest tag.
-2. **Add brand assets** to [home-assistant/brands](https://github.com/home-assistant/brands):
-   create `custom_integrations/lego_power/icon.png` (256×256) and `logo.png`.
-   Ready‑to‑use images are provided in the `brands/` folder of this repo.
-3. Make the repository **public** and not archived, with a description and topics.
-4. Open an inclusion PR at
-   [hacs/default](https://github.com/hacs/default) (optional — custom
-   repositories work without this).
+Custom-repository installs work today without any of the above.
 
 ## License
 
