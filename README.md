@@ -130,17 +130,15 @@ To get listed in the **default HACS store**, in order:
    **public** and not archived.
 2. **Publish a Release**: GitHub → Releases → *Draft a new release* → choose the
    existing tag **`v1.2.1`** → publish. HACS installs from the latest release.
-3. **Brand assets** — open a PR to
-   [home-assistant/brands](https://github.com/home-assistant/brands) adding the
-   integration's `lego_power` domain. Copy the images from this repo's `brands/`
-   folder to:
-   `custom_integrations/lego_power/icon.png` (256×256),
-   `custom_integrations/lego_power/icon@2x.png` (512×512),
-   `custom_integrations/lego_power/logo.png`,
-   `custom_integrations/lego_power/logo@2x.png`.
-   This must be merged **before** the HACS default PR will pass.
-4. **Check CI**: confirm the **Validate** workflow (Actions tab) is green. The
-   HACS `brands` check only passes once step 3 is merged.
+3. **Brand assets in Home Assistant** — the brand images are already shipped
+   in-repo at `custom_components/lego_power/brand/`, which satisfies the HACS
+   validation check. To also make the icon/logo **display in the Home Assistant
+   UI**, open a PR to
+   [home-assistant/brands](https://github.com/home-assistant/brands) adding
+   `custom_integrations/lego_power/{icon.png, icon@2x.png, logo.png, logo@2x.png}`
+   (copy them from this repo's `brands/` folder). Recommended for the default store.
+4. **Check CI**: confirm the **Validate** workflow (Actions tab) is green
+   (hassfest + HACS). The brand check now passes from the in-repo assets.
 5. **Default-store PR**: fork [hacs/default](https://github.com/hacs/default),
    add `ajachierno/Lego-Power` to the `integration` list (alphabetical), and open
    a PR. A maintainer/bot reviews it.
