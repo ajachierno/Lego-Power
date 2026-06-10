@@ -129,7 +129,7 @@ To get listed in the **default HACS store**, in order:
    `bluetooth`, `esphome`), and make sure **Issues** are enabled and the repo is
    **public** and not archived.
 2. **Publish a Release**: GitHub → Releases → *Draft a new release* → choose the
-   existing tag **`v1.2.0`** → publish. HACS installs from the latest release.
+   existing tag **`v1.2.1`** → publish. HACS installs from the latest release.
 3. **Brand assets** — open a PR to
    [home-assistant/brands](https://github.com/home-assistant/brands) adding the
    integration's `lego_power` domain. Copy the images from this repo's `brands/`
